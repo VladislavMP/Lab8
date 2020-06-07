@@ -35,11 +35,13 @@ public class MainFrame extends JFrame {
     private static final int MEDIUM_GAP = 10;
     private static final int LARGE_GAP = 15;
     private static final int SERVER_PORT = 4567;
+    private static int SERVER_PORT_GET = 4568;
     private final JTextField textFieldFrom;
     private final JTextField textFieldTo;
     private final JTextArea textAreaIncoming;
     private final JTextArea textAreaOutgoing;
-
+    private int index;
+    private int len;
     public MainFrame() {
         super(FRAME_TITLE);
         setMinimumSize(
@@ -176,8 +178,15 @@ public class MainFrame extends JFrame {
         try {
 // Получаем необходимые параметры
             final String senderName = textFieldFrom.getText();
-            final String destinationAddress = textFieldTo.getText();
+            String indexb = textFieldTo.getText();
             final String message = textAreaOutgoing.getText();
+            index = indexb.indexOf(":");
+            len = indexb.length();
+            String indexbb;
+            indexbb = indexb.substring(index + 1);
+            SERVER_PORT_GET = Integer.parseInt(indexbb);
+            final String destinationAddress = indexb.substring(0, index);
+
 // Убеждаемся, что поля не пустые
             if (senderName.isEmpty()) {
                 JOptionPane.showMessageDialog(this,
@@ -205,7 +214,7 @@ public class MainFrame extends JFrame {
             }
 // Создаем сокет для соединения
             final Socket socket =
-                    new Socket(destinationAddress, SERVER_PORT);
+                    new Socket(destinationAddress, SERVER_PORT_GET);
 // Открываем поток вывода данных
             final DataOutputStream out =
                     new DataOutputStream(socket.getOutputStream());
@@ -216,7 +225,7 @@ public class MainFrame extends JFrame {
 // Закрываем сокет
             socket.close();
 // Помещаем сообщения в текстовую область вывода
-            textAreaIncoming.append("Я -> " + destinationAddress + ": "
+            textAreaIncoming.append("Я -> " + destinationAddress +": "
 
                     + message + "\n");
 
@@ -236,6 +245,22 @@ public class MainFrame extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
 
         }
+        catch (NumberFormatException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(MainFrame.this,
+                "Не указан порт получател",
+                "Ошибка", JOptionPane.ERROR_MESSAGE);
+
+        }
+        catch (StringIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(MainFrame.this,
+                    "Не указан порт получателя",
+                    "Ошибка", JOptionPane.ERROR_MESSAGE);
+
+        }
+
+
     }
 
     public static void main(String[] args) {
